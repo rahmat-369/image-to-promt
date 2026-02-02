@@ -1,1 +1,1356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>r_hmt dev | Website Untuk Mengubah Foto/gambar ke Prompt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            /* 2026 Modern Palette */
+            --bg-body: #F3F6F8;       /* Putih Abu Sangat Muda */
+            --bg-card: #FFFFFF;
+            --primary: #2563EB;       /* Biru Elektrik */
+            --primary-hover: #1D4ED8;
+            --primary-soft: #EFF6FF;
+            --text-main: #1E293B;     /* Slate 800 */
+            --text-muted: #64748B;    /* Slate 500 */
+            --border-light: #E2E8F0;
+            --success: #10B981;       /* Green for success state */
+            
+            /* Decoration */
+            --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 20px 40px -4px rgba(0, 0, 0, 0.08);
+            --glow-primary: 0 0 20px rgba(37, 99, 235, 0.15);
+            
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            height: 80px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            width: 90%; max-width: 1280px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .brand-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), #3B82F6);
+            color: white;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .brand-logo:hover .logo-icon {
+            transform: rotate(15deg);
+        }
+
+        .highlight { color: var(--primary); }
+
+        .nav-links {
+            display: flex; gap: 30px; list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none; color: var(--text-muted);
+            font-weight: 600; font-size: 0.95rem;
+            transition: 0.3s;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after { width: 100%; }
+
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .menu-btn {
+            width: 44px; height: 44px;
+            border: 1px solid var(--border-light);
+            background: transparent; border-radius: 50%;
+            cursor: pointer; color: var(--text-main); font-size: 1.2rem;
+            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .menu-btn:hover { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        /* Sidebar Dropdown */
+        .sidebar-dropdown {
+            position: fixed; top: 90px; right: 5%;
+            width: 280px; background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            padding: 1.5rem;
+            transform: translateY(-20px) scale(0.95);
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 999;
+            border: 1px solid var(--border-light);
+        }
+
+        .sidebar-dropdown.active {
+            transform: translateY(0) scale(1);
+            opacity: 1; visibility: visible;
+        }
+
+        .sidebar-header {
+            display: flex; justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .sidebar-header span {
+            font-weight: 700; color: var(--text-main); 
+            font-size: 1.1rem;
+        }
+        
+        #closeSidebar {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        
+        #closeSidebar:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+        
+        .sidebar-list { 
+            list-style: none; 
+        }
+        
+        .sidebar-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-list li a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; color: var(--text-main); text-decoration: none;
+            font-weight: 500; border-radius: 8px; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .sidebar-list li a:hover { 
+            background: var(--primary-soft); 
+            color: var(--primary); 
+            border-color: var(--border-light);
+            transform: translateX(5px);
+        }
+
+        /* WhatsApp Channel Button */
+        .whatsapp-channel-btn {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .whatsapp-channel-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+        }
+
+        /* --- HERO BANNER --- */
+        .hero {
+            position: relative; 
+            min-height: 600px;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; 
+            margin-top: 80px;
+            overflow: hidden;
+        }
+
+        .hero-bg-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: -2;
+        }
+
+        .hero-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            animation: scaleIn 20s ease-in-out infinite alternate;
+        }
+        
+        @keyframes scaleIn {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(37, 99, 235, 0.3) 100%);
+            backdrop-filter: blur(2px);
+        }
+
+        .hero-content { 
+            position: relative; 
+            z-index: 1; 
+            padding: 40px 20px; 
+            max-width: 900px; 
+            color: white; 
+        }
+        
+        .hero-content h1 {
+            font-size: 3.8rem; 
+            line-height: 1.1; 
+            font-weight: 800; 
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            letter-spacing: -0.5px;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #60A5FA 0%, #FFFFFF 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-content p { 
+            font-size: 1.2rem; 
+            color: rgba(255,255,255,0.9); 
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .badge-pill {
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            padding: 8px 20px; 
+            background: rgba(255,255,255,0.15); 
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 100px; 
+            font-size: 0.9rem; 
+            margin-bottom: 2rem; 
+            backdrop-filter: blur(10px);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .dot { 
+            width: 10px; 
+            height: 10px; 
+            background: #4ADE80; 
+            border-radius: 50%; 
+            box-shadow: 0 0 15px #4ADE80;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn-primary-lg {
+            display: inline-flex; 
+            align-items: center; 
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover)); 
+            color: white;
+            padding: 18px 40px; 
+            border-radius: 100px;
+            font-weight: 700; 
+            text-decoration: none;
+            box-shadow: var(--glow-primary); 
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn-primary-lg:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        /* --- MAIN APP SECTION --- */
+        .main-app { 
+            padding: 0 20px 80px; 
+            margin-top: -40px; 
+            position: relative; 
+            z-index: 10; 
+        }
+        
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 3rem;
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #60A5FA, var(--primary));
+        }
+
+        .card-head { 
+            text-align: center; 
+            margin-bottom: 3.5rem; 
+        }
+        
+        .card-head h2 { 
+            font-size: 2.5rem; 
+            color: var(--text-main); 
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .card-head p { 
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* GRID LAYOUT UTAMA */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr; /* Kolom Kanan lebih lebar untuk hasil */
+            gap: 3.5rem;
+            align-items: start;
+        }
+
+        /* Kolom Kiri: Controls */
+        .col-input { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2rem; 
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-md);
+            background: #F8FAFC;
+            height: 320px; /* Fixed height for consistency */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer; 
+            transition: all 0.3s;
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        .upload-zone:hover { 
+            border-color: var(--primary); 
+            background: var(--primary-soft); 
+            transform: translateY(-5px);
+        }
+        
+        .upload-zone.drag-over {
+            border-color: var(--primary);
+            background: var(--primary-soft);
+            transform: scale(1.02);
+        }
+
+        .upload-content { 
+            text-align: center; 
+            pointer-events: none; 
+            padding: 20px;
+        }
+        
+        .icon-circle {
+            width: 70px; 
+            height: 70px; 
+            background: white;
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 1.8rem; 
+            color: var(--primary); 
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s;
+        }
+        
+        .upload-zone:hover .icon-circle {
+            transform: rotate(15deg) scale(1.1);
+        }
+        
+        .upload-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+        
+        .upload-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        .img-preview {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; 
+            background: #1E293B;
+            display: none;
+            z-index: 2;
+        }
+        
+        .remove-btn {
+            position: absolute; 
+            top: 15px; 
+            right: 15px;
+            background: rgba(239, 68, 68, 0.9); 
+            color: white;
+            border: none; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%;
+            cursor: pointer; 
+            display: none; 
+            z-index: 5;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-btn:hover {
+            background: rgb(220, 38, 38);
+            transform: rotate(90deg);
+        }
+
+        .settings-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1.5rem; 
+        }
+
+        .form-group label { 
+            display: block; 
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            margin-bottom: 10px; 
+            color: var(--text-main); 
+        }
+        
+        .select-box { 
+            position: relative; 
+        }
+        
+        .select-box .select-icon { 
+            position: absolute; 
+            left: 16px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--primary);
+            z-index: 2;
+        }
+        
+        .select-box select {
+            width: 100%; 
+            padding: 16px 16px 16px 48px;
+            border: 1px solid var(--border-light); 
+            border-radius: var(--radius-sm);
+            background: white; 
+            appearance: none; 
+            outline: none; 
+            font-family: inherit;
+            cursor: pointer; 
+            color: var(--text-main); 
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .select-box select:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px var(--primary-soft); 
+            transform: translateY(-2px);
+        }
+        
+        .select-box .arrow { 
+            position: absolute; 
+            right: 16px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            pointer-events: none; 
+            color: var(--text-muted); 
+            z-index: 2;
+        }
+        
+        .select-box:hover select {
+            border-color: var(--primary);
+        }
+
+        .btn-generate {
+            width: 100%; 
+            padding: 20px;
+            background: linear-gradient(135deg, var(--text-main), #334155); 
+            color: white;
+            border: none; 
+            border-radius: var(--radius-sm);
+            font-size: 1.1rem; 
+            font-weight: 700; 
+            cursor: pointer;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+            transition: all 0.3s; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.7s;
+        }
+        
+        .btn-generate:hover::before {
+            left: 100%;
+        }
+        
+        .btn-generate:hover:not(:disabled) { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover)); 
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+            transform: translateY(-5px);
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-generate:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            transform: none !important;
+        }
+
+        /* Kolom Kanan: RESULT (MODERN & BESAR) */
+        .col-result {
+            background: #F1F5F9; /* Kontras background dikit */
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            min-height: 520px; /* TINGGI DEFAULT BESAR */
+            position: relative;
+            display: flex; 
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+        
+        .col-result:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .empty-state {
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            color: var(--text-muted); 
+            opacity: 0.7;
+            padding: 3rem;
+        }
+        
+        .empty-state i { 
+            font-size: 4rem; 
+            margin-bottom: 1.5rem;
+            color: var(--border-light);
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        .loading-state {
+            display: none;
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(255,255,255,0.9);
+            padding: 3rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+        }
+        
+        .spinner-modern {
+            width: 50px; 
+            height: 50px;
+            border: 4px solid var(--border-light); 
+            border-top-color: var(--primary);
+            border-radius: 50%; 
+            animation: spin 0.8s ease-in-out infinite; 
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+        
+        .loading-state p {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 1.1rem;
+        }
+
+        .result-content {
+            display: none; 
+            flex: 1; 
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .result-header {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .label-tech { 
+            font-size: 0.85rem; 
+            font-weight: 800; 
+            color: var(--primary); 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            background: var(--primary-soft);
+            border-radius: 6px;
+        }
+
+        .action-btn {
+            background: white; 
+            border: 1px solid var(--border-light);
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            cursor: pointer;
+            color: var(--text-main); 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover { 
+            background: var(--primary-soft); 
+            color: var(--primary); 
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn.success {
+            background: #DCFCE7;
+            color: #15803D;
+            border-color: #86EFAC;
+        }
+
+        /* TEXTAREA SUPER BESAR & BERSIH */
+        .prompt-box {
+            width: 100%; 
+            flex: 1; /* Isi sisa ruang */
+            min-height: 380px; /* Minimal tinggi besar */
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.8rem;
+            font-family: 'SF Mono', 'Consolas', 'Monaco', monospace; /* Code font look */
+            font-size: 1.05rem; 
+            line-height: 1.7; 
+            color: var(--text-main);
+            resize: none; 
+            outline: none;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .prompt-box:focus {
+            border-color: var(--primary);
+            box-shadow: inset 0 2px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .result-footer {
+            margin-top: 1.5rem; 
+            display: flex; 
+            gap: 2rem; 
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted); 
+            font-size: 0.85rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .result-footer small {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* --- FOOTER PROFESSIONAL --- */
+        footer {
+            background: #0F172A; /* Slate 900 - Dark Footer */
+            color: white; 
+            padding: 5rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #60A5FA, var(--primary));
+        }
+        
+        .footer-container {
+            max-width: 1200px; 
+            margin: 0 auto;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            flex-wrap: wrap; 
+            gap: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .footer-brand h2 { 
+            font-size: 1.8rem; 
+            letter-spacing: 0.5px; 
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFFFFF, #CBD5E1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-brand p { 
+            color: #94A3B8; 
+            font-size: 1rem;
+            max-width: 300px;
+        }
+        
+        .footer-credits { 
+            text-align: right; 
+        }
+        
+        .footer-credits p { 
+            color: #64748B; 
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .socials { 
+            display: flex; 
+            gap: 15px; 
+            justify-content: flex-end; 
+        }
+        
+        .socials a {
+            color: white; 
+            width: 42px; 
+            height: 42px; 
+            background: rgba(255,255,255,0.08);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border-radius: 50%; 
+            text-decoration: none; 
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .socials a:hover { 
+            background: var(--primary); 
+            transform: translateY(-5px) rotate(10deg);
+            border-color: var(--primary);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .grid-layout { 
+                grid-template-columns: 1fr; 
+                gap: 2.5rem;
+            }
+            
+            .hero-content h1 { 
+                font-size: 3rem; 
+            }
+            
+            .col-result { 
+                min-height: 450px; 
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { 
+                display: none; 
+            }
+            
+            .hero {
+                min-height: 500px;
+                margin-top: 80px;
+            }
+            
+            .hero-content h1 { 
+                font-size: 2.5rem; 
+            }
+            
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+            
+            .glass-card {
+                padding: 2rem;
+            }
+            
+            .card-head h2 {
+                font-size: 2rem;
+            }
+            
+            .settings-row {
+                grid-template-columns: 1fr;
+                gap: 1.2rem;
+            }
+            
+            .footer-container { 
+                flex-direction: column; 
+                text-align: center; 
+                gap: 2rem;
+            }
+            
+            .footer-credits { 
+                text-align: center; 
+            }
+            
+            .socials { 
+                justify-content: center; 
+            }
+            
+            .whatsapp-channel-btn {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .btn-primary-lg {
+                padding: 16px 32px;
+                font-size: 0.95rem;
+            }
+            
+            .glass-card {
+                padding: 1.5rem;
+            }
+            
+            .prompt-box {
+                font-size: 0.95rem;
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="brand-logo">
+                <div class="logo-icon"><i class="ri-eye-2-line"></i></div>
+                <span>IMAGE2PROMPT<span class="highlight">.AI</span></span>
+            </a>
+
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#generator">Generator</a></li>
+                <li><a href="#footer">Credit</a></li>
+            </ul>
+
+            <button class="menu-btn" id="menuToggle">
+                <i class="ri-menu-3-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <aside class="sidebar-dropdown" id="sidebarMenu">
+        <div class="sidebar-header">
+            <span>Menu Navigasi</span>
+            <i class="ri-close-line" id="closeSidebar"></i>
+        </div>
+        <ul class="sidebar-list">
+            <li><a href="#home"><i class="ri-home-line"></i> Beranda</a></li>
+            <li><a href="#generator"><i class="ri-cpu-line"></i> AI Generator</a></li>
+            <li><a href="#footer"><i class="ri-information-line"></i> Tentang</a></li>
+            <li><a href="https://github.com/r_hmt dev." target="_blank"><i class="ri-github-line"></i> GitHub r_hmt dev</a></li>
+        </ul>
+        
+        <!-- WhatsApp Channel Button -->
+        <a href="https://whatsapp.com/channel/0029VbBjyjlJ93wa6hwSWa0p" target="_blank" class="whatsapp-channel-btn">
+            <i class="ri-whatsapp-line"></i>
+            Join WhatsApp Channel
+        </a>
+    </aside>
+
+    <header id="home" class="hero">
+        <div class="hero-bg-wrapper">
+            <img src="https://cdn.odzre.my.id/0jw.jpg" alt="AI Matrix Background" class="hero-img">
+            <div class="hero-overlay"></div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="badge-pill">
+                <span class="dot"></span> Powered by r_mt dev
+            </div>
+            <h1>Visual to Text <br> <span class="text-gradient">Intelligence.</span></h1>
+            <p>Konversi gambar apapun menjadi prompt presisi tinggi untuk Midjourney, Stable Diffusion, & Flux dengan teknologi AI terkini.</p>
+            <a href="#generator" class="btn-primary-lg">Mulai Sekarang <i class="ri-arrow-right-line"></i></a>
+        </div>
+    </header>
+
+    <section id="generator" class="main-app">
+        <div class="container">
+            
+            <div class="glass-card">
+                <div class="card-head">
+                    <h2><i class="ri-magic-line"></i> Studio Generator</h2>
+                    <p>Upload foto untuk diekstrak menjadi teks prompt AI yang presisi.</p>
+                </div>
+
+                <div class="grid-layout">
+                    <div class="col-input">
+                        <div class="upload-zone" id="dropArea">
+                            <input type="file" id="imageInput" accept="image/*" hidden>
+                            <div class="upload-content">
+                                <div class="icon-circle">
+                                    <i class="ri-upload-cloud-fill"></i>
+                                </div>
+                                <h3>Upload Foto</h3>
+                                <p>Klik atau drag & drop file gambar ke sini</p>
+                                <p style="font-size: 0.85rem; margin-top: 10px; color: var(--text-muted);">Format: JPG, PNG, WebP (Max 10MB)</p>
+                            </div>
+                            <img id="previewImage" class="img-preview" src="" alt="Preview">
+                            <button id="removeImgBtn" class="remove-btn"><i class="ri-close-line"></i></button>
+                        </div>
+
+                        <div class="settings-row">
+                            <div class="form-group">
+                                <label><i class="ri-translate"></i> Bahasa Output</label>
+                                <div class="select-box">
+                                    <i class="ri-translate select-icon"></i>
+                                    <select id="language">
+                                        <option value="en">English (Rekomendasi)</option>
+                                        <option value="id">Indonesia</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="zh">Chinese</option>
+                                    </select>
+                                    <i class="ri-arrow-down-s-line arrow"></i>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="ri-robot-line"></i> Target Model</label>
+                                <div class="select-box">
+                                    <i class="ri-robot-line select-icon"></i>
+                                    <select id="model">
+                                        <option value="general">General Purpose</option>
+                                        <option value="midjourney">Midjourney v6</option>
+                                        <option value="dalle">DALL-E 3</option>
+                                        <option value="flux">Flux.1 Pro</option>
+                                    </select>
+                                    <i class="ri-arrow-down-s-line arrow"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="generateBtn" class="btn-generate" disabled>
+                            <i class="ri-sparkling-2-fill"></i> Generate Prompt
+                        </button>
+                    </div>
+
+                    <div class="col-result" id="resultPanel">
+                        <div class="empty-state" id="emptyState">
+                            <i class="ri-code-s-slash-line"></i>
+                            <h3 style="margin-bottom: 10px; color: var(--text-main);">Hasil Prompt AI</h3>
+                            <p>Upload gambar dan klik generate untuk melihat hasil konversi visual ke teks.</p>
+                        </div>
+
+                        <div class="loading-state" id="loading">
+                            <div class="spinner-modern"></div>
+                            <p>Menganalisis Komposisi Visual...</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px; color: var(--text-muted);">Proses ini membutuhkan beberapa detik</p>
+                        </div>
+
+                        <div class="result-content" id="resultContent">
+                            <div class="result-header">
+                                <span class="label-tech">GENERATED PROMPT</span>
+                                <div class="actions">
+                                    <button class="action-btn" id="copyBtn" title="Salin Teks ke Clipboard">
+                                        <i class="ri-file-copy-line"></i> Salin
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea id="promptResult" class="prompt-box" readonly spellcheck="false" placeholder="Prompt AI akan muncul di sini..."></textarea>
+                            <div class="result-footer">
+                                <small><i class="ri-robot-line"></i> Model: <span id="modelTag">General</span></small>
+                                <small><i class="ri-character-recognition-line"></i> Karakter: <span id="charCount">0</span></small>
+                                <small><i class="ri-time-line"></i> Real-time</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h2>✧･ﾟ: [𝙍]𝙝𝙢𝙏 | 𝘾𝙤𝙙𝙚⚙️𝘼𝙄 𝙡 :･ﾟ✧</h2>
+                <p>Developing the future of AI tools. Transform visual content into precise AI prompts with cutting-edge technology.</p>
+            </div>
+            <div class="footer-credits">
+                <p>&copy; 2026 r_hmt Project. All Rights Reserved.</p>
+                <div class="socials">
+                    <a href="https://github.com/r_hmt dev" target="_blank" title="GitHub"><i class="ri-github-fill"></i></a>
+                    <a href="#" title="Telegram"><i class="ri-telegram-fill"></i></a>
+                    <a href="#" title="Website"><i class="ri-global-line"></i></a>
+                    <a href="https://whatsapp.com/channel/0029VbBjyjlJ93wa6hwSWa0p" target="_blank" title="WhatsApp Channel"><i class="ri-whatsapp-line"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // === Elements ===
+            const fileInput = document.getElementById('imageInput');
+            const dropArea = document.getElementById('dropArea');
+            const previewImage = document.getElementById('previewImage');
+            const uploadContent = document.querySelector('.upload-content');
+            const removeImgBtn = document.getElementById('removeImgBtn');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            // Result Elements
+            const emptyState = document.getElementById('emptyState');
+            const loading = document.getElementById('loading');
+            const resultContent = document.getElementById('resultContent');
+            const promptResult = document.getElementById('promptResult');
+            const copyBtn = document.getElementById('copyBtn');
+            const modelTag = document.getElementById('modelTag');
+            const charCount = document.getElementById('charCount');
+
+            // Sidebar
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            const closeSidebar = document.getElementById('closeSidebar');
+
+            let currentFile = null;
+
+            // === Sidebar Logic ===
+            function toggleSidebar() {
+                sidebarMenu.classList.toggle('active');
+            }
+            menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+            closeSidebar.addEventListener('click', toggleSidebar);
+            document.addEventListener('click', (e) => {
+                if (!sidebarMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebarMenu.classList.remove('active');
+                }
+            });
+
+            // === Drag & Drop + Upload Logic ===
+            dropArea.addEventListener('click', () => fileInput.click());
+
+            dropArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropArea.classList.add('drag-over');
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove('drag-over');
+            });
+
+            dropArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropArea.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                handleFileSelect(file);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFileSelect(e.target.files[0]);
+            });
+
+            function handleFileSelect(file) {
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Harap upload file gambar (JPG, PNG, WebP).');
+                    return;
+                }
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Ukuran file maksimal 10MB.');
+                    return;
+                }
+
+                currentFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                    uploadContent.style.display = 'none';
+                    removeImgBtn.style.display = 'flex';
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="ri-sparkling-2-fill"></i> Generate Prompt dari Gambar';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            removeImgBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                resetUpload();
+            });
+
+            function resetUpload() {
+                currentFile = null;
+                fileInput.value = '';
+                previewImage.style.display = 'none';
+                previewImage.src = '';
+                uploadContent.style.display = 'block';
+                removeImgBtn.style.display = 'none';
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="ri-sparkling-2-fill"></i> Generate Prompt';
+            }
+
+            // === Generate API Logic ===
+            generateBtn.addEventListener('click', async () => {
+                if (!currentFile) return;
+
+                // UI Transition
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="ri-loader-4-line spin-icon" style="animation: spin 0.8s linear infinite;"></i> Memproses...';
+                emptyState.style.display = 'none';
+                resultContent.style.display = 'none';
+                loading.style.display = 'block';
+
+                const language = document.getElementById('language').value;
+                const model = document.getElementById('model').value;
+
+                try {
+                    const base64 = await toBase64(currentFile);
+
+                    const response = await fetch('/api/index', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            imageBase64: base64,
+                            language: language,
+                            model: model
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Server Error');
+
+                    // Success Display
+                    promptResult.value = data.prompt;
+                    modelTag.textContent = document.getElementById('model').options[document.getElementById('model').selectedIndex].text;
+                    charCount.textContent = data.prompt.length;
+                    
+                    loading.style.display = 'none';
+                    resultContent.style.display = 'flex';
+                    
+                    // Auto-scroll to result
+                    promptResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                } catch (error) {
+                    alert('SANN404 Error: ' + error.message);
+                    loading.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="ri-sparkling-2-fill"></i> Generate Prompt';
+                }
+            });
+
+            // Helper
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+
+            // === Copy To Clipboard ===
+            copyBtn.addEventListener('click', () => {
+                if (!promptResult.value.trim()) return;
+                
+                promptResult.select();
+                promptResult.setSelectionRange(0, 99999); // For mobile
+                
+                navigator.clipboard.writeText(promptResult.value)
+                    .then(() => {
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="ri-check-line"></i> Tersalin!';
+                        copyBtn.classList.add('success');
+                        
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                            copyBtn.classList.remove('success');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Copy failed: ', err);
+                        // Fallback
+                        document.execCommand('copy');
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="ri-check-line"></i> Tersalin!';
+                        copyBtn.classList.add('success');
+                        
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                            copyBtn.classList.remove('success');
+                        }, 2000);
+                    });
+            });
+            
+            // Update character count in real-time
+            promptResult.addEventListener('input', () => {
+                charCount.textContent = promptResult.value.length;
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        sidebarMenu.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
